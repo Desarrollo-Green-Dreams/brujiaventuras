@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Introduccion from "./views/introduccion";
+import Introduccion from "./views/Introduccion";
 import Inicio from "./views/Inicio";
 import SeleccionMision from "./views/SeleccionMision";
 import PrepararMochila from "./views/PrepararMochila";
