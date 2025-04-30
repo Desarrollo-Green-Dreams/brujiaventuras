@@ -19,10 +19,12 @@ export default function Inicio() {
     }
   }, []);
 
-  const handleComenzar = () => {
-    if (!nombre.trim()) return; // Evita continuar si está vacío
+  const nombreEsValido = nombre.trim().length >= 3;
 
-    setNombreJugador(nombre); // Guarda en el store
+  const handleComenzar = () => {
+    if (!nombreEsValido) return;
+
+    setNombreJugador(nombre.trim());
 
     if (audioStartRef.current) {
       audioStartRef.current.play();
@@ -59,7 +61,7 @@ export default function Inicio() {
 
         <input
           type="text"
-          placeholder="Ingresa tu nombre"
+          placeholder="Ingresa tu nombre (mínimo 3 letras)"
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
           className="w-full px-4 py-2 rounded border border-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm"
@@ -67,9 +69,9 @@ export default function Inicio() {
 
         <button
           onClick={handleComenzar}
-          disabled={!nombre.trim()}
+          disabled={!nombreEsValido}
           className={`px-6 py-3 rounded text-white font-semibold transition-all w-full ${
-            nombre.trim()
+            nombreEsValido
               ? "bg-purple-600 hover:bg-purple-800"
               : "bg-gray-400 cursor-not-allowed"
           }`}
