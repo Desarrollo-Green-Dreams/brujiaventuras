@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Lottie from "lottie-react";
 import useGameStore from "../store/useGameStore";
+import magoAnimacion from "../../public/mago.json"; // Animación Lottie
 
 export default function Inicio() {
   const navigate = useNavigate();
@@ -32,12 +34,12 @@ export default function Inicio() {
 
     setTimeout(() => {
       navigate("/introduccion");
-    }, 1000);
+    }, 500);
   };
 
   return (
-    <div className="relative flex flex-col items-center justify-center h-screen bg-cover bg-center overflow-hidden">
-      {/* Video de fondo */}
+    <div className="relative flex items-center justify-center h-screen bg-cover bg-center overflow-hidden">
+      {/* Fondo en video */}
       <video
         autoPlay
         loop
@@ -53,31 +55,59 @@ export default function Inicio() {
       <audio ref={audioInicioRef} src="/inicio.mp3" loop />
       <audio ref={audioStartRef} src="/gameStart.mp3" />
 
-      {/* Contenido principal */}
-      <div className="relative z-10 bg-white bg-opacity-80 px-6 py-8 sm:px-8 sm:py-10 md:px-10 md:py-12 rounded-xl text-center max-w-sm sm:max-w-md md:max-w-lg w-full mx-4 shadow-lg space-y-4">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-purple-800">
-          ✨ Bruji Aventuras ✨
-        </h1>
+      {/* Contenedor central con fondo de pergamino */}
+      <div
+        className="relative z-10 flex justify-center items-center flex-col gap-8 bg-cover bg-center bg-no-repeat p-8 md:p-12 mx-4 w-1/3 h-full"
+        style={{
+          backgroundImage: 'url("/pergamino.png")',
+          backgroundSize: "100% 100%",
+          borderRadius: "1rem",
+        }}
+      >
+        {/* Formulario */}
+        <div className="text-center flex justify-center flex-col items-center w-1/2">
+          {/* Título */}
+          <h1 className="mb-10 text-3xl sm:text-4xl font-bold text-[#4A09A7] drop-shadow-sm font-[Aleo]">
+            Bruji Aventuras
+          </h1>
 
-        <input
-          type="text"
-          placeholder="Ingresa tu nombre (mínimo 3 letras)"
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
-          className="w-full px-4 py-2 rounded border border-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm"
-        />
+          {/* Input de nombre */}
+          <input
+            type="text"
+            placeholder="Ingresa tu nombre"
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+            className="text-center my-10 w-[150px] px-4 py-2 rounded border border-[#4A09A7] focus:outline-none focus:ring-2 focus:ring-[#B1B63A] text-sm bg-transparent text-[#4A09A7] placeholder-[#4A09A7] max-w-md backdrop-blur-xs"
+          />
 
-        <button
-          onClick={handleComenzar}
-          disabled={!nombreEsValido}
-          className={`px-6 py-3 rounded text-white font-semibold transition-all w-full ${
-            nombreEsValido
-              ? "bg-purple-600 hover:bg-purple-800"
-              : "bg-gray-400 cursor-not-allowed"
-          }`}
-        >
-          Comenzar
-        </button>
+          <button
+            onClick={handleComenzar}
+            disabled={!nombreEsValido}
+            type="button"
+            className={`btn mt-[120px] relative font-aleo text-white font-semibold transition-all duration-300 ${
+              nombreEsValido
+                ? ""
+                : "opacity-60 cursor-not-allowed pointer-events-none"
+            }`}
+          >
+            <strong className="relative z-10 tracking-[0.2em]">
+              Continuar
+            </strong>
+
+            {nombreEsValido && (
+              <>
+                <div id="container-stars">
+                  <div id="stars"></div>
+                </div>
+
+                <div id="glow">
+                  <div className="circle"></div>
+                  <div className="circle"></div>
+                </div>
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );

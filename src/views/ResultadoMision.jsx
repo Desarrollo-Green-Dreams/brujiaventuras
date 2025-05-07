@@ -1,18 +1,25 @@
 import React, { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import useGameStore from "../store/useGameStore";
-import objetosMagicos from "../store/objetosMagicos";
+import obtenerObjetosPorMision from "../store/objetosMagicos";
 
 export default function Resultado() {
   const navigate = useNavigate();
   const { mochila, mision, reiniciarJuego } = useGameStore();
+  const nombreJugador = useGameStore((state) => state.nombreJugador);
   const audioWinRef = useRef(null);
   const audioLoseRef = useRef(null);
-  const nombreJugador = useGameStore((state) => state.nombreJugador);
-  const esExito = mochila.length === 5 && mochila.every(nombre => {
-    const objetoEncontrado = objetosMagicos.find(obj => obj.nombre === nombre);
-    return objetoEncontrado?.correcto;
-  });
+
+  const objetos = obtenerObjetosPorMision(mision?.titulo || "");
+
+  const esExito =
+    mochila.length === 5 &&
+    mochila.every((nombre) => {
+      const objetoEncontrado = objetos.find(
+        (obj) => obj.nombre === nombre
+      );
+      return objetoEncontrado?.correcto;
+    });
 
   useEffect(() => {
     if (esExito && audioWinRef.current) {
@@ -24,24 +31,25 @@ export default function Resultado() {
 
   const manejarNuevoJuego = () => {
     reiniciarJuego();
-    navigate("/seleccion-mision");
+    navigate("/introduccion");
   };
 
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-purple-500 via-pink-400 to-yellow-300 p-8 overflow-hidden">
-      
       {/* Fondo desenfocado detrás */}
       <div className="relative z-10 bg-white bg-opacity-80 px-6 py-8 sm:px-8 sm:py-10 md:px-10 md:py-12 rounded-xl text-center max-w-sm sm:max-w-md md:max-w-lg w-full mx-4 shadow-lg space-y-6">
-        
         <h2 className="text-3xl sm:text-4xl font-bold text-purple-800">
-          {esExito ? `¡Misión cumplida  ${nombreJugador || "Aprendiz"} ! 🎉` : `¡Ups, algo salió mal ${nombreJugador || "Aprendiz"}! 😥`}
+          {esExito
+            ? `¡Misión cumplida ${nombreJugador || "Aprendiz"}! 🎉`
+            : `¡Ups, algo salió mal ${nombreJugador || "Aprendiz"}! 😥`}
         </h2>
 
         <div className="text-lg text-gray-700 space-y-4">
           {esExito ? (
             <>
               <p>
-                ¡Felicitaciones! Has completado la misión <strong>{mision?.titulo}</strong> con éxito.
+                ¡Felicitaciones! Has completado la misión{" "}
+                {mision?.titulo} con éxito.
               </p>
               <p>¡El Brujito está muy orgulloso de ti! 🧙‍♂️✨</p>
             </>
@@ -63,7 +71,6 @@ export default function Resultado() {
         >
           Jugar otra misión
         </button>
-
       </div>
 
       {/* Audios de resultado */}
