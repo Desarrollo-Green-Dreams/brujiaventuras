@@ -4,16 +4,19 @@ import { Typewriter } from "react-simple-typewriter";
 import useGameStore from "../store/useGameStore";
 import BotonVolver from "../components/BotonVolver";
 import Lottie from "lottie-react";
-import magoAnimacion from "../../public/mago.json";
-import escoba from "../../public/escoba.json";
-import hand from "../../public/hand.json";
-import planta from "../../public/planta.json";
-import moon from "../../public/moon.json";
-import libro from "../../public/libro.json";
-import acido from "../../public/acido.json";
+import magoAnimacion from "../assets/lotties/mago.json";
+import escoba from "../assets/lotties/escoba.json";
+import hand from "../assets/lotties/hand.json";
+import planta from "../assets/lotties/planta.json";
+import moon from "../assets/lotties/moon.json";
+import libro from "../assets/lotties/libro.json";
+import acido from "../assets/lotties/acido.json";
 import { SparklesIcon } from "@heroicons/react/24/solid";
+import { LockClosedIcon } from "@heroicons/react/24/solid";
 
 export default function InicioYSeleccionMision() {
+  const progresoMisiones = useGameStore((state) => state.progresoMisiones);
+  const completarMision = useGameStore((state) => state.completarMision);
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const setMision = useGameStore((state) => state.setMision);
@@ -31,41 +34,47 @@ export default function InicioYSeleccionMision() {
     {
       animacion: escoba, // Puedes reemplazar esta animación según tu diseño
       titulo: "Amarre de Amor",
-      descripcion: "Necesito reunir las velas rojas, el cabello de la persona amada y el perfume de rosas para completar el amarre.",
+      descripcion:
+        "Necesito reunir las velas rojas, el cabello de la persona amada y el perfume de rosas para completar el amarre.",
       respuestaMago: "El amor de esa mujer no se me escapará.",
     },
     {
       animacion: hand,
       titulo: "Lectura de Cartas",
-      descripcion: "Debo encontrar el mazo de tarot ancestral y concentrarme para revelar el destino oculto en las cartas.",
-      respuestaMago: "Las cartas nunca mienten, solo hay que saber escucharlas.",
+      descripcion:
+        "Debo encontrar el mazo de tarot ancestral y concentrarme para revelar el destino oculto en las cartas.",
+      respuestaMago:
+        "Las cartas nunca mienten, solo hay que saber escucharlas.",
     },
     {
       animacion: planta,
       titulo: "Baño de Florecimiento",
-      descripcion: "Recolecta flores de manzanilla, pétalos de rosa y esencia de canela para purificar el alma y atraer la buena fortuna.",
+      descripcion:
+        "Recolecta flores de manzanilla, pétalos de rosa y esencia de canela para purificar el alma y atraer la buena fortuna.",
       respuestaMago: "Con cada pétalo, renace mi espíritu.",
     },
     {
       animacion: moon,
       titulo: "Lectura de Tabaco",
-      descripcion: "Enciendo el tabaco sagrado y observo el humo para interpretar los mensajes de los espíritus ancestrales.",
+      descripcion:
+        "Enciendo el tabaco sagrado y observo el humo para interpretar los mensajes de los espíritus ancestrales.",
       respuestaMago: "El humo revela lo que el corazón calla.",
     },
     {
       animacion: libro,
       titulo: "Pago a la Tierra",
-      descripcion: "Ofrezco hojas de coca, chicha y dulces a la Pachamama para agradecer y pedir su bendición.",
+      descripcion:
+        "Ofrezco hojas de coca, chicha y dulces a la Pachamama para agradecer y pedir su bendición.",
       respuestaMago: "La tierra escucha cuando se le habla con respeto.",
     },
     {
       animacion: acido,
       titulo: "Ritual de Limpieza",
-      descripcion: "Necesito preparar una mezcla de hierbas amargas y realizar el ritual para eliminar las energías negativas.",
+      descripcion:
+        "Necesito preparar una mezcla de hierbas amargas y realizar el ritual para eliminar las energías negativas.",
       respuestaMago: "Con cada gota, se disuelven las sombras que me rodean.",
     },
   ];
-  
 
   const toggleModal = () => {
     setShowModal(!showModal);
@@ -94,7 +103,7 @@ export default function InicioYSeleccionMision() {
       {
         method: "POST",
         headers: {
-          "xi-api-key": "sk_fb4da3df7f2023d4a4d9e65f499ec6658660a3ede659f996",
+          "xi-api-key": "sk_a36f91e8025c2e5b189603af85d43f1d0bd4c27b548790ea",
           "Content-Type": "application/json",
           Accept: "audio/mpeg",
         },
@@ -124,26 +133,25 @@ export default function InicioYSeleccionMision() {
   useEffect(() => {
     if (hasSpokenRef.current) return;
     hasSpokenRef.current = true;
-  
+
     hablarConVozDeMago(textoViñeta);
   }, []);
 
-  
-  const seleccionarMision = async (mision) => {
+  const seleccionarMision = async (mision, index) => {
+    if (index > progresoMisiones) return; // bloqueo por orden
+
     if (audioStartRef.current) {
       audioStartRef.current.play();
     }
 
     setMision(mision);
-    setTextoVisible(""); // limpia antes de mostrar nuevo
+    setTextoVisible("");
     const texto = mision.respuestaMago;
 
-    // inicia ambas a la vez (no se espera una antes de la otra)
     const hablar = hablarConVozDeMago(texto);
     const escribir = mostrarTextoConTyping(texto);
 
     await Promise.all([hablar, escribir]);
-
     navigate("/preparar-mochila");
   };
 
@@ -182,7 +190,7 @@ export default function InicioYSeleccionMision() {
       {/* boton animado */}
       <button
         onClick={toggleModal}
-        className="fixed top-[62%] left-[43%] -translate-x-1/2 -translate-y-1/2 z-50 bg-[#4A09A7] hover:bg-[#3a077f] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-all group"
+        className="fixed  top-[58%] left-[47%]  lg:top-[62%] lg:left-[43%] -translate-x-1/2 -translate-y-1/2 z-50 bg-[#4A09A7] hover:bg-[#3a077f] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-all group"
       >
         {/* Efecto ping */}
         <span className="absolute inline-flex h-full w-full rounded-full bg-[#B1B63A] opacity-75 animate-ping"></span>
@@ -192,7 +200,7 @@ export default function InicioYSeleccionMision() {
       </button>
 
       {/* Título */}
-      <h2 className="text-3xl font-bold text-center text-white mb-12 drop-shadow-sm">
+      <h2 className="text-3xl font-bold text-center text-white mb-12 drop-shadow-sm mt-10 lg:mt-0">
         Elige el hechizo a completar✨
       </h2>
 
@@ -210,34 +218,49 @@ export default function InicioYSeleccionMision() {
             {/* Botón cerrar */}
             <button
               onClick={toggleModal}
-              className="absolute top-6 right-4 text-[#8B6A2F] hover:text-black text-2xl font-bold"
+              className="absolute top-14 right-4 text-[#ffffff] hover:text-black text-2xl font-bold"
             >
               x
             </button>
 
             {/* Misiones */}
-            <div className="grid md:grid-cols-3 gap-6">
-              {misiones.map((mision, index) => (
-                <div
-                  key={index}
-                  onClick={() => {
-                    seleccionarMision(mision);
-                    toggleModal();
-                  }}
-                  className="shadow-lg p-6 rounded-2xl text-center hover:scale-105 transition-transform duration-300 cursor-pointer flex flex-col justify-between hover:shadow-2xl"
-                >
-                  <Lottie
-                    animationData={mision.animacion}
-                    loop={true}
-                    className="h-28 mx-auto"
-                  />
-                  <h3 className="text-xl font-semibold text-[#4A09A7] mb-2">
-                    {mision.titulo}
-                  </h3>
-                  <p className="text-gray-700">{mision.descripcion}</p>
-                </div>
-              ))}
+            <div className="grid grid-cols-3 gap-x-24 gap-y-4 md:gap-6 md:px-6 place-items-center">
+              {misiones.map((mision, index) => {
+                const bloqueada = index > progresoMisiones;
+
+                return (
+                  <div
+                    key={index}
+                    onClick={() =>
+                      !bloqueada && seleccionarMision(mision, index)
+                    }
+                    className={`w-[90px] md:w-auto shadow-md p-2 md:p-4 rounded-xl text-center transition-transform duration-300 cursor-pointer flex flex-col justify-between ${
+                      bloqueada
+                        ? "opacity-40 cursor-not-allowed"
+                        : "hover:scale-105 hover:shadow-xl"
+                    }`}
+                  >
+                    <div className="relative">
+                      <Lottie
+                        animationData={mision.animacion}
+                        loop={true}
+                        className="h-12 md:h-20 mx-auto"
+                      />
+                      {bloqueada && (
+                        <LockClosedIcon className="h-5 w-5 text-gray-700 absolute top-0 right-0" />
+                      )}
+                    </div>
+                    <h3 className="text-[11px] leading-tight font-semibold text-[#4A09A7] mb-0 md:text-base md:mb-1">
+                      {mision.titulo}
+                    </h3>
+                    <p className="hidden md:block text-xs md:text-base text-gray-700">
+                      {mision.descripcion}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
+            
           </div>
         </div>
       )}

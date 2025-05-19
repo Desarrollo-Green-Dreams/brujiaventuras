@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Lottie from "lottie-react";
 import useGameStore from "../store/useGameStore";
-import magoAnimacion from "../../public/mago.json"; // Animación Lottie
+import magoAnimacion from "../assets/lotties/mago.json"; // Animación Lottie
 
 export default function Inicio() {
   const navigate = useNavigate();
@@ -57,7 +57,7 @@ export default function Inicio() {
 
       {/* Contenedor central con fondo de pergamino */}
       <div
-        className="relative z-10 flex justify-center items-center flex-col gap-8 bg-cover bg-center bg-no-repeat p-8 md:p-12 mx-4 w-1/3 h-full"
+        className="relative z-10 flex justify-center items-center flex-col gap-8 bg-cover bg-center bg-no-repeat p-8 md:p-12 mx-4 w-full lg:w-1/3 h-full"
         style={{
           backgroundImage: 'url("/pergamino.png")',
           backgroundSize: "100% 100%",
@@ -74,17 +74,17 @@ export default function Inicio() {
           {/* Input de nombre */}
           <input
             type="text"
-            placeholder="Ingresa tu nombre"
+            placeholder="Nombre"
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
-            className="text-center my-10 w-[150px] px-4 py-2 rounded border border-[#4A09A7] focus:outline-none focus:ring-2 focus:ring-[#B1B63A] text-sm bg-transparent text-[#4A09A7] placeholder-[#4A09A7] max-w-md backdrop-blur-xs"
+            className="text-center my-10 w-[120px] lg:w-[150px] px-4 py-2 rounded border border-[#4A09A7] focus:outline-none focus:ring-2 focus:ring-[#B1B63A] text-sm bg-transparent text-[#4A09A7] placeholder-[#4A09A7] max-w-md backdrop-blur-xs"
           />
 
           <button
             onClick={handleComenzar}
             disabled={!nombreEsValido}
             type="button"
-            className={`btn mt-[120px] relative font-aleo text-white font-semibold transition-all duration-300 ${
+            className={`btn mt-[110px] lg:mt-[120px] relative font-aleo text-white font-semibold transition-all duration-300 ${
               nombreEsValido
                 ? ""
                 : "opacity-60 cursor-not-allowed pointer-events-none"

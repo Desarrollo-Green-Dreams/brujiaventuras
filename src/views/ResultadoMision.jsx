@@ -3,58 +3,60 @@ import { useNavigate } from "react-router-dom";
 import useGameStore from "../store/useGameStore";
 import obtenerObjetosPorMision from "../store/objetosMagicos";
 import Lottie from "lottie-react";
-import magoAnimacion from "../../public/mago.json";
+import magoAnimacion from "../assets/lotties/mago.json";
 import { Typewriter } from "react-simple-typewriter";
 
 export default function Resultado() {
   const navigate = useNavigate();
-  const { mochila, mision, reiniciarJuego } = useGameStore();
+  const { mochila, mision, reiniciarMisionActual } = useGameStore();
   const nombreJugador = useGameStore((state) => state.nombreJugador);
   const audioWinRef = useRef(null);
   const audioLoseRef = useRef(null);
 
-  
   const misiones = [
     {
-     
       titulo: "Amarre de Amor",
-      descripcion: "Necesito reunir las velas rojas, el cabello de la persona amada y el perfume de rosas para completar el amarre.",
+      descripcion:
+        "Necesito reunir las velas rojas, el cabello de la persona amada y el perfume de rosas para completar el amarre.",
       respuestaMago: "El amor de esa mujer no se me escapará.",
     },
     {
-      
       titulo: "Lectura de Cartas",
-      descripcion: "Debo encontrar el mazo de tarot ancestral y concentrarme para revelar el destino oculto en las cartas.",
-      respuestaMago: "Las cartas nunca mienten, solo hay que saber escucharlas.",
+      descripcion:
+        "Debo encontrar el mazo de tarot ancestral y concentrarme para revelar el destino oculto en las cartas.",
+      respuestaMago:
+        "Las cartas nunca mienten, solo hay que saber escucharlas.",
     },
     {
-    
       titulo: "Baño de Florecimiento",
-      descripcion: "Recolecta flores de manzanilla, pétalos de rosa y esencia de canela para purificar el alma y atraer la buena fortuna.",
+      descripcion:
+        "Recolecta flores de manzanilla, pétalos de rosa y esencia de canela para purificar el alma y atraer la buena fortuna.",
       respuestaMago: "Con cada pétalo, renace mi espíritu.",
     },
     {
-   
       titulo: "Lectura de Tabaco",
-      descripcion: "Enciendo el tabaco sagrado y observo el humo para interpretar los mensajes de los espíritus ancestrales.",
+      descripcion:
+        "Enciendo el tabaco sagrado y observo el humo para interpretar los mensajes de los espíritus ancestrales.",
       respuestaMago: "El humo revela lo que el corazón calla.",
     },
     {
-     
       titulo: "Pago a la Tierra",
-      descripcion: "Ofrezco hojas de coca, chicha y dulces a la Pachamama para agradecer y pedir su bendición.",
+      descripcion:
+        "Ofrezco hojas de coca, chicha y dulces a la Pachamama para agradecer y pedir su bendición.",
       respuestaMago: "La tierra escucha cuando se le habla con respeto.",
     },
     {
-   
       titulo: "Ritual de Limpieza",
-      descripcion: "Necesito preparar una mezcla de hierbas amargas y realizar el ritual para eliminar las energías negativas.",
+      descripcion:
+        "Necesito preparar una mezcla de hierbas amargas y realizar el ritual para eliminar las energías negativas.",
       respuestaMago: "Con cada gota, se disuelven las sombras que me rodean.",
     },
   ];
 
   const objetos = obtenerObjetosPorMision(mision?.titulo || "");
   const misionCompleta = misiones.find((m) => m.titulo === mision?.titulo);
+  const completarMision = useGameStore((state) => state.completarMision);
+  const yaMarcado = useRef(false);
 
   const esExito =
     mochila.length === 5 &&
@@ -64,6 +66,11 @@ export default function Resultado() {
     });
 
   useEffect(() => {
+    if (esExito && !yaMarcado.current) {
+      completarMision();
+      yaMarcado.current = true;
+    }
+
     if (esExito && audioWinRef.current) {
       audioWinRef.current.play();
     } else if (!esExito && audioLoseRef.current) {
@@ -72,10 +79,9 @@ export default function Resultado() {
   }, [esExito]);
 
   const manejarNuevoJuego = () => {
-    reiniciarJuego();
+    reiniciarMisionActual();
     navigate("/introduccion");
   };
-
 
   return (
     <div
@@ -91,7 +97,7 @@ export default function Resultado() {
               words={[
                 esExito
                   ? misionCompleta?.respuestaMago || "¡Bien hecho, aprendiz!"
-                  : "El calcetín se volvió un duende... y no uno simpático. 🧦😆",
+                  : "El calcetín se volvió un duende... y no uno simpático.",
               ]}
               typeSpeed={40}
               deleteSpeed={0}
@@ -112,25 +118,27 @@ export default function Resultado() {
         <h2 className="text-3xl sm:text-4xl font-bold text-purple-800">
           {esExito
             ? `¡Misión cumplida ${nombreJugador || "Aprendiz"}! 🎉`
-            : `¡Ups, algo salió mal ${nombreJugador || "Aprendiz"}! 😥`}
+            : `¡Ups, algo salió mal ${nombreJugador || "Aprendiz"}!`}
         </h2>
 
         <div className="text-lg text-gray-700 space-y-4">
           {esExito ? (
             <>
               <p>
-                ¡Felicitaciones! Has completado la misión{" "}
-                {mision?.titulo} con éxito.
+                ¡Felicitaciones! Has completado la misión {mision?.titulo} con
+                éxito.
               </p>
               <p>¡El Brujito está muy orgulloso de ti! 🧙‍♂️✨</p>
             </>
           ) : (
             <>
               <p>
-                Parece que algo salió mal con los objetos. ¡El Brujito tendrá que improvisar!
+                Parece que algo salió mal con los objetos. ¡El Brujito tendrá
+                que improvisar!
               </p>
               <p>
-                A veces hasta un error puede traer magia inesperada. ¡Inténtalo otra vez!
+                A veces hasta un error puede traer magia inesperada. ¡Inténtalo
+                otra vez!
               </p>
             </>
           )}

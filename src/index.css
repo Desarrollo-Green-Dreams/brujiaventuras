@@ -3,6 +3,24 @@
 @tailwind utilities;
 
 
+@keyframes flotarAleatoriamente {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(10px, -5px);
+  }
+  50% {
+    transform: translate(-10px, 5px);
+  }
+  75% {
+    transform: translate(5px, -10px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
 
 
 @layer utilities {
