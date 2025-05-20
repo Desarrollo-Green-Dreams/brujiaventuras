@@ -1,87 +1,43 @@
-import React, { useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import useGameStore from "../store/useGameStore";
-import obtenerObjetosPorMision from "../store/objetosMagicos";
+import React, { useRef, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import Lottie from "lottie-react";
 import magoAnimacion from "../assets/lotties/mago.json";
 import { Typewriter } from "react-simple-typewriter";
 
 export default function Resultado() {
+  const location = useLocation();
   const navigate = useNavigate();
-  const { mochila, mision, reiniciarMisionActual } = useGameStore();
-  const nombreJugador = useGameStore((state) => state.nombreJugador);
+  const esExito = location.state?.esExito;
+
   const audioWinRef = useRef(null);
   const audioLoseRef = useRef(null);
 
-  const misiones = [
-    {
-      titulo: "Amarre de Amor",
-      descripcion:
-        "Necesito reunir las velas rojas, el cabello de la persona amada y el perfume de rosas para completar el amarre.",
-      respuestaMago: "El amor de esa mujer no se me escapará.",
-    },
-    {
-      titulo: "Lectura de Cartas",
-      descripcion:
-        "Debo encontrar el mazo de tarot ancestral y concentrarme para revelar el destino oculto en las cartas.",
-      respuestaMago:
-        "Las cartas nunca mienten, solo hay que saber escucharlas.",
-    },
-    {
-      titulo: "Baño de Florecimiento",
-      descripcion:
-        "Recolecta flores de manzanilla, pétalos de rosa y esencia de canela para purificar el alma y atraer la buena fortuna.",
-      respuestaMago: "Con cada pétalo, renace mi espíritu.",
-    },
-    {
-      titulo: "Lectura de Tabaco",
-      descripcion:
-        "Enciendo el tabaco sagrado y observo el humo para interpretar los mensajes de los espíritus ancestrales.",
-      respuestaMago: "El humo revela lo que el corazón calla.",
-    },
-    {
-      titulo: "Pago a la Tierra",
-      descripcion:
-        "Ofrezco hojas de coca, chicha y dulces a la Pachamama para agradecer y pedir su bendición.",
-      respuestaMago: "La tierra escucha cuando se le habla con respeto.",
-    },
-    {
-      titulo: "Ritual de Limpieza",
-      descripcion:
-        "Necesito preparar una mezcla de hierbas amargas y realizar el ritual para eliminar las energías negativas.",
-      respuestaMago: "Con cada gota, se disuelven las sombras que me rodean.",
-    },
-  ];
+  const nombreJugador = "Aprendiz"; // Si no quieres depender del store, puedes dejarlo fijo
 
-  const objetos = obtenerObjetosPorMision(mision?.titulo || "");
-  const misionCompleta = misiones.find((m) => m.titulo === mision?.titulo);
-  const completarMision = useGameStore((state) => state.completarMision);
-  const yaMarcado = useRef(false);
-
-  const esExito =
-    mochila.length === 5 &&
-    mochila.every((nombre) => {
-      const objetoEncontrado = objetos.find((obj) => obj.nombre === nombre);
-      return objetoEncontrado?.correcto;
-    });
+  // Mensajes por defecto
+  const mensajeExito = "¡Bien hecho, aprendiz!";
+  const mensajeFracaso = "El calcetín se volvió un duende... y no uno simpático.";
 
   useEffect(() => {
-    if (esExito && !yaMarcado.current) {
-      completarMision();
-      yaMarcado.current = true;
-    }
-
-    if (esExito && audioWinRef.current) {
+    if (esExito === true && audioWinRef.current) {
       audioWinRef.current.play();
-    } else if (!esExito && audioLoseRef.current) {
+    } else if (esExito === false && audioLoseRef.current) {
       audioLoseRef.current.play();
     }
   }, [esExito]);
 
   const manejarNuevoJuego = () => {
-    reiniciarMisionActual();
     navigate("/introduccion");
   };
+
+  // Protección si alguien entra directamente sin pasar por navigate()
+  if (esExito === undefined) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-white text-xl bg-black">
+        Esta pantalla solo es accesible después de preparar tu mochila. 🧙‍♂️
+      </div>
+    );
+  }
 
   return (
     <div
@@ -94,11 +50,7 @@ export default function Resultado() {
           <div className="whitespace-pre-line leading-relaxed">
             <Typewriter
               key={esExito ? "exito" : "fracaso"}
-              words={[
-                esExito
-                  ? misionCompleta?.respuestaMago || "¡Bien hecho, aprendiz!"
-                  : "El calcetín se volvió un duende... y no uno simpático.",
-              ]}
+              words={[esExito ? mensajeExito : mensajeFracaso]}
               typeSpeed={40}
               deleteSpeed={0}
               delaySpeed={500}
@@ -117,17 +69,14 @@ export default function Resultado() {
       <div className="relative z-10 bg-white bg-opacity-80 px-6 py-8 sm:px-8 sm:py-10 md:px-10 md:py-12 rounded-xl text-center max-w-sm sm:max-w-md md:max-w-lg w-full mx-auto shadow-lg space-y-6 mt-20">
         <h2 className="text-3xl sm:text-4xl font-bold text-purple-800">
           {esExito
-            ? `¡Misión cumplida ${nombreJugador || "Aprendiz"}! 🎉`
-            : `¡Ups, algo salió mal ${nombreJugador || "Aprendiz"}!`}
+            ? `¡Misión cumplida ${nombreJugador}! 🎉`
+            : `¡Ups, algo salió mal ${nombreJugador}!`}
         </h2>
 
         <div className="text-lg text-gray-700 space-y-4">
           {esExito ? (
             <>
-              <p>
-                ¡Felicitaciones! Has completado la misión {mision?.titulo} con
-                éxito.
-              </p>
+              <p>¡Felicitaciones! Has completado la misión con éxito.</p>
               <p>¡El Brujito está muy orgulloso de ti! 🧙‍♂️✨</p>
             </>
           ) : (

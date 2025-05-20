@@ -98,34 +98,44 @@ export default function InicioYSeleccionMision() {
   };
 
   const hablarConVozDeMago = async (texto) => {
-    const response = await fetch(
-      "https://api.elevenlabs.io/v1/text-to-speech/N2lVS1w4EtoT3dr4eOWO/stream",
-      {
-        method: "POST",
-        headers: {
-          "xi-api-key": "sk_a36f91e8025c2e5b189603af85d43f1d0bd4c27b548790ea",
-          "Content-Type": "application/json",
-          Accept: "audio/mpeg",
-        },
-        body: JSON.stringify({
-          text: texto,
-          model_id: "eleven_multilingual_v2",
-          voice_settings: {
-            stability: 0.4,
-            similarity_boost: 0.8,
+    try {
+      const response = await fetch(
+        "https://api.elevenlabs.io/v1/text-to-speech/N2lVS1w4EtoT3dr4eOWO/stream",
+        {
+          method: "POST",
+          headers: {
+            "xi-api-key": "sk_a36f91e8025c2e5b189603af85d43f1d0bd4c27b548790ea",
+            "Content-Type": "application/json",
+            Accept: "audio/mpeg",
           },
-        }),
-      }
-    );
+          body: JSON.stringify({
+            text: texto,
+            model_id: "eleven_multilingual_v2",
+            voice_settings: {
+              stability: 0.4,
+              similarity_boost: 0.8,
+            },
+          }),
+        }
+      );
 
-    const blob = await response.blob();
-    const audioUrl = URL.createObjectURL(blob);
-    const audio = new Audio(audioUrl);
+      if (!response.ok) throw new Error("Error en API ElevenLabs");
 
-    return new Promise((resolve) => {
-      audio.onended = resolve; // espera que termine
-      audio.play();
-    });
+      const blob = await response.blob();
+      const audioUrl = URL.createObjectURL(blob);
+      const audio = new Audio(audioUrl);
+
+      return new Promise((resolve) => {
+        audio.onended = resolve;
+        audio.play().catch((e) => {
+          console.warn("No se pudo reproducir audio:", e);
+          resolve();
+        });
+      });
+    } catch (error) {
+      console.warn("Fallo la voz del mago:", error);
+      return Promise.resolve(); // asegura que nunca se rompa
+    }
   };
 
   const hasSpokenRef = useRef(false); // evita repetir en modo dev
@@ -148,10 +158,17 @@ export default function InicioYSeleccionMision() {
     setTextoVisible("");
     const texto = mision.respuestaMago;
 
-    const hablar = hablarConVozDeMago(texto);
-    const escribir = mostrarTextoConTyping(texto);
+    try {
+      await Promise.all([
+        hablarConVozDeMago(texto),
+        mostrarTextoConTyping(texto),
+      ]);
+    } catch (error) {
+      console.error("Error al reproducir voz del mago:", error);
+      // Si falla la voz, aún mostramos el texto como fallback rápido
+      await mostrarTextoConTyping(texto);
+    }
 
-    await Promise.all([hablar, escribir]);
     navigate("/preparar-mochila");
   };
 
@@ -260,7 +277,6 @@ export default function InicioYSeleccionMision() {
                 );
               })}
             </div>
-            
           </div>
         </div>
       )}

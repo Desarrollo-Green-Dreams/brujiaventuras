@@ -3,43 +3,47 @@ import { persist } from "zustand/middleware";
 
 const useGameStore = create(
   persist(
-    (set) => ({
+    (set, get) => ({
       // Estado inicial
       mision: null,
       mochila: [],
       nombreJugador: "",
       progresoMisiones: 0,
+      objetosGenerados: [],
 
       // Acciones
       setNombreJugador: (nombre) => set({ nombreJugador: nombre }),
       setMision: (mision) => set({ mision }),
 
-      agregarObjeto: (objeto) =>
-        set((state) => {
-          if (state.mochila.length >= 5) return state;
-          if (state.mochila.includes(objeto)) return state;
-          return { mochila: [...state.mochila, objeto] };
-        }),
+      agregarObjeto: (objeto) => {
+        const { mochila } = get();
+        if (mochila.length >= 5 || mochila.includes(objeto)) return;
+        set({ mochila: [...mochila, objeto] });
+      },
 
-      quitarObjeto: (objeto) =>
-        set((state) => ({
-          mochila: state.mochila.filter((item) => item !== objeto),
-        })),
+      quitarObjeto: (objeto) => {
+        const { mochila } = get();
+        set({ mochila: mochila.filter((item) => item !== objeto) });
+      },
 
-      // ✅ reinicia solo la misión actual y mochila
+      setObjetosGenerados: (lista) => set({ objetosGenerados: lista }),
+
+      resetMochila: () => set({ mochila: [] }),
+
       reiniciarMisionActual: () =>
         set({
           mision: null,
           mochila: [],
+          objetosGenerados: [],
         }),
 
-      // ✅ solo si quieres borrar todo el progreso
       reiniciarJuegoCompleto: () =>
         set({
           mision: null,
           mochila: [],
           progresoMisiones: 0,
           nombreJugador: "",
+          objetosGenerados: [],
         }),
 
       completarMision: () =>
@@ -54,6 +58,7 @@ const useGameStore = create(
         mochila: state.mochila,
         nombreJugador: state.nombreJugador,
         progresoMisiones: state.progresoMisiones,
+        objetosGenerados: state.objetosGenerados,
       }),
     }
   )
