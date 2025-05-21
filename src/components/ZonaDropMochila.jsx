@@ -2,7 +2,7 @@ import { useDrop } from "react-dnd";
 import { useState } from "react";
 import bolsa from "../assets/svgs/bolsa.png";
 
-export default function ZonaDropMochila({ children, onDrop }) {
+export default function ZonaDropMochila({ children, onDrop, animarBolsa }) {
   const [mostrarContenido, setMostrarContenido] = useState(false);
 
   const [{ isOver, canDrop }, drop] = useDrop(
@@ -22,17 +22,22 @@ export default function ZonaDropMochila({ children, onDrop }) {
     []
   );
 
+  const scaleClass =
+    animarBolsa || isOver
+      ? "scale-110 shadow-xl"
+      : "scale-100";
+
   return (
-    <div className="absolute bottom-12 left-[250px] flex flex-col items-center justify-center">
+    <div className="absolute bottom-12 left-[250px] flex flex-col items-center justify-center transition-transform duration-300 ease-in-out">
       {/* Bolsa visual */}
       <div
-        className="relative w-[220px] h-[220px] bg-cover bg-center transition-transform duration-300"
+        className={`relative w-[220px] h-[220px] bg-cover bg-center transform ${scaleClass} transition-transform duration-300`}
         ref={drop}
         style={{
           backgroundImage: `url(${bolsa})`,
         }}
       >
-        {/* ✨ Partículas mágicas solo en la parte superior */}
+        {/* ✨ Partículas mágicas */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-32 pointer-events-none z-10 overflow-visible">
           {[...Array(10)].map((_, i) => (
             <span
@@ -48,7 +53,7 @@ export default function ZonaDropMochila({ children, onDrop }) {
           ))}
         </div>
 
-        {/* Botón para mostrar contenido */}
+        {/* Botón mostrar/ocultar */}
         <button
           onClick={() => setMostrarContenido(!mostrarContenido)}
           className="absolute bottom-2 right-2 text-xs px-2 py-1 rounded bg-purple-600 text-white hover:bg-purple-800 z-20"
@@ -57,7 +62,7 @@ export default function ZonaDropMochila({ children, onDrop }) {
         </button>
       </div>
 
-      {/* Contenido de la mochila */}
+      {/* Contenido */}
       {mostrarContenido && (
         <div className="mt-4 bg-white/90 rounded-xl shadow-inner p-4 flex gap-3 flex-wrap justify-center w-full max-w-xs min-h-[100px]">
           {children}
@@ -66,3 +71,4 @@ export default function ZonaDropMochila({ children, onDrop }) {
     </div>
   );
 }
+

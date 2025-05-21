@@ -22,6 +22,7 @@ export default function PrepararMochila() {
 
   const audioBagRef = useRef(null);
   const [objetos, setObjetos] = useState([]);
+  const [bolsaAnimada, setBolsaAnimada] = useState(false);
 
   useEffect(() => {
     if (mision?.titulo) {
@@ -31,7 +32,7 @@ export default function PrepararMochila() {
 
   const [showPistasMobile, setShowPistasMobile] = useState(false);
 
-  const textoViñeta = `Recuerda elegir con sabiduría...\nSolo los objetos correctos completarán el hechizo. 🔮`;
+  const textoViñeta = `Recuerda elegir con sabiduría...\nSolo los objetos correctos completarán el hechizo. Arrastra los objetos hacia mi bolso magico 🔮`;
   const [textoVisible, setTextoVisible] = useState(textoViñeta);
 
   const reproducirSonido = () => {
@@ -51,7 +52,7 @@ export default function PrepararMochila() {
 
     console.log("✔️ Validación local:", { mochila, correctos, esExito });
     if (esExito) {
-      useGameStore.getState().completarMision(); 
+      useGameStore.getState().completarMision();
     }
 
     navigate("/resultado-mision", { state: { esExito } });
@@ -94,6 +95,7 @@ export default function PrepararMochila() {
               deleteSpeed={0}
               delaySpeed={500}
               cursor
+              onTypeDone={() => setBolsaAnimada(true)}
             />
           </div>
         </div>
@@ -131,6 +133,7 @@ export default function PrepararMochila() {
 
         {/* Mochila */}
         <ZonaDropMochila
+          animarBolsa={bolsaAnimada}
           onDrop={(nombre) => {
             if (!mochila.includes(nombre) && mochila.length < 5) {
               agregarObjeto(nombre);
@@ -175,14 +178,22 @@ export default function PrepararMochila() {
       </div>
 
       {/* Pistas en desktop */}
-      <div className="hidden md:block fixed top-10 right-10 w-80 bg-white/90 rounded-xl p-6 shadow-xl">
-        <h3 className="text-xl font-bold text-purple-800 mb-4">
+      <div
+        className="hidden md:block fixed top-10 right-10 w-80 rounded-xl p-6 shadow-xl bg-cover bg-center bg-no-repeat h-[400px]"
+        style={{
+          backgroundImage: "url('/pergamino.png')",
+          backgroundSize: "100% 100%", // asegura que se adapte al div
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center",
+        }}
+      >
+        <h3 className="text-xl font-bold  mb-4 drop-shadow pt-16 text-white ml-14">
           Pistas del hechizo
         </h3>
-        <ul className="list-disc pl-5 text-gray-800 space-y-2 font-medium text-sm">
+        <ul className="list-disc pl-5  space-y-2 font-medium text-sm drop-shadow  ml-10 text-white">
           {[...objetos]
             .filter((obj) => obj.correcto)
-            .sort((a, b) => a.nombre.localeCompare(b.nombre)) // <-- orden alfabético estable
+            .sort((a, b) => a.nombre.localeCompare(b.nombre))
             .map((obj, index) => (
               <li key={index}>{obj.pista || obj.nombre}</li>
             ))}

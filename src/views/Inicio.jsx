@@ -26,12 +26,18 @@ export default function Inicio() {
   const handleComenzar = () => {
     if (!nombreEsValido) return;
 
+    // Reiniciar todo el progreso al comenzar
+    useGameStore.getState().reiniciarJuegoCompleto();
+
+    // Establecer el nuevo nombre después de reiniciar
     setNombreJugador(nombre.trim());
 
+    // Reproducir sonido de inicio
     if (audioStartRef.current) {
       audioStartRef.current.play();
     }
 
+    // Ir a la introducción
     setTimeout(() => {
       navigate("/introduccion");
     }, 500);
