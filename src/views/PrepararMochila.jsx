@@ -24,16 +24,57 @@ export default function PrepararMochila() {
   const [objetos, setObjetos] = useState([]);
   const [bolsaAnimada, setBolsaAnimada] = useState(false);
 
+  const [showPistasMobile, setShowPistasMobile] = useState(false);
+
+  const textoViñeta = `Recuerda elegir con sabiduría...\nSolo los objetos correctos completarán el hechizo. Arrastra los objetos hacia mi bolso magico 🔮`;
+  const [textoVisible, setTextoVisible] = useState(textoViñeta);
+
+  const hablarConVozDeMago = async (texto) => {
+    try {
+      const response = await fetch(
+        "https://api.elevenlabs.io/v1/text-to-speech/N2lVS1w4EtoT3dr4eOWO/stream",
+        {
+          method: "POST",
+          headers: {
+            "xi-api-key": "sk_b4ac29b3adb41edc1265eaf8ac57d7425b39d84013b69ce8",
+            "Content-Type": "application/json",
+            Accept: "audio/mpeg",
+          },
+          body: JSON.stringify({
+            text: texto,
+            model_id: "eleven_multilingual_v2",
+            voice_settings: {
+              stability: 0.4,
+              similarity_boost: 0.8,
+            },
+          }),
+        }
+      );
+
+      if (!response.ok) throw new Error("Error en API ElevenLabs");
+
+      const blob = await response.blob();
+      const audioUrl = URL.createObjectURL(blob);
+      const audio = new Audio(audioUrl);
+
+      return new Promise((resolve) => {
+        audio.onended = resolve;
+        audio.play().catch((e) => {
+          console.warn("No se pudo reproducir audio:", e);
+          resolve();
+        });
+      });
+    } catch (error) {
+      console.warn("Fallo la voz del mago:", error);
+      return Promise.resolve(); // asegura que nunca se rompa
+    }
+  };
+
   useEffect(() => {
     if (mision?.titulo) {
       setObjetos(obtenerObjetosPorMision(mision.titulo));
     }
   }, [mision?.titulo]);
-
-  const [showPistasMobile, setShowPistasMobile] = useState(false);
-
-  const textoViñeta = `Recuerda elegir con sabiduría...\nSolo los objetos correctos completarán el hechizo. Arrastra los objetos hacia mi bolso magico 🔮`;
-  const [textoVisible, setTextoVisible] = useState(textoViñeta);
 
   const reproducirSonido = () => {
     if (audioBagRef.current) {
@@ -58,9 +99,11 @@ export default function PrepararMochila() {
     navigate("/resultado-mision", { state: { esExito } });
   };
 
-  // Limpieza al salir
   useEffect(() => {
     setTextoVisible(textoViñeta);
+
+    hablarConVozDeMago(textoViñeta); // 🔊 que hable al iniciar
+
     return () => reiniciarMisionActual();
   }, []);
 
@@ -70,7 +113,7 @@ export default function PrepararMochila() {
     if (mision?.titulo) {
       const nuevosObjetos = obtenerObjetosPorMision(mision.titulo);
       setObjetos(nuevosObjetos);
-      useGameStore.getState().setObjetosGenerados(nuevosObjetos); // 👈 guardar en store
+      useGameStore.getState().setObjetosGenerados(nuevosObjetos); 
     }
   }, [mision?.titulo]);
 
